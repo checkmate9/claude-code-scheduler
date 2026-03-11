@@ -26,13 +26,28 @@
 - macOS LaunchAgent: `~/Library/LaunchAgents/com.agents.every6h.plist`
 - Fires at: 00:00, 06:00, 12:00, 18:00 **Israel time** (local system time)
 - Script: `~/Documents/claude-code/run-agents-every-6h.sh`
+- Uses full paths: PYTHON=/usr/bin/python3, NODE=/opt/homebrew/bin/node
+- macOS has no `timeout` — uses background kill pattern instead
 - Repo: https://github.com/checkmate9/claude-code-scheduler
 - Logs: `~/Documents/claude-code/scheduler-logs/`
 
+### Persistent Listeners (for /links and /runnow)
+- AI news: `com.ai-news-agent.listener.plist` → runs `agent.sh start` at boot
+  - PID tracked in: `~/Documents/claude-code/ai-news-agent/logs/agent.pid`
+  - Start manually: `cd ~/Documents/claude-code/ai-news-agent && PYTHON=/usr/bin/python3 ./agent.sh start`
+- Music bot: `com.bots.music-listener.plist` → runs `start-listener.sh` (while-true wrapper around bot.js)
+  - Log: `~/claude-code/logs/music-bot.log`
+  - Start manually: `nohup /opt/homebrew/bin/node ~/Documents/claude-code/music-releases-agent/bot.js &`
+
+### LaunchAgent Log Paths
+- LaunchAgent stdout/stderr must NOT point to ~/Documents/ — causes exit 78 (no Full Disk Access for log writes)
+- Safe log path: `~/claude-code/logs/` (outside Documents)
+- Scheduler logs (written by bash which has FDA): `~/Documents/claude-code/scheduler-logs/`
+
 ### Known Issue: LaunchAgent Exit 126
-macOS blocks launchd from ~/Documents after migration.
+macOS blocks launchd from ~/Documents without Full Disk Access for /bin/bash.
 Fix: System Settings → Privacy & Security → Full Disk Access → + → /bin/bash
-Then: `launchctl unload/load ~/Library/LaunchAgents/com.agents.every6h.plist`
+Already granted on this Mac Mini ✅
 
 ## Migration to New Machine
 1. `git clone https://github.com/checkmate9/ai-news-agent`
