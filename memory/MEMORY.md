@@ -43,9 +43,11 @@ Then: `launchctl unload/load ~/Library/LaunchAgents/com.agents.every6h.plist`
 
 ## Git Workflow
 - git user: checkmate9 / checkmate9@gmail.com
-- Auth: GitHub PAT via osxkeychain (token embedded in remote URL)
-- **Regenerate PAT after sharing in chat** — last token was shared 2026-03-11
-- See bots-git-workflow.md for bug fix / feature workflow
+- Auth: GitHub PAT stored in macOS Keychain (NOT in remote URLs)
+- Update PAT: `printf "protocol=https\nhost=github.com\nusername=checkmate9\npassword=NEW_PAT\n" | git credential-osxkeychain store`
+- **After every fix or feature: run `bash ~/sync-bots "message"` automatically — don't wait for user to ask**
+- sync-bots pushes all 3 repos + memory files in one command
+- See bots-git-workflow.md for full workflow
 
 ## Secrets / .env
 - Never committed — gitignored in both repos
