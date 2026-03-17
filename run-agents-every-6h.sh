@@ -14,20 +14,10 @@ TIMESTAMP=$(date "+%Y-%m-%d %H:%M:%S")
   $PYTHON main.py --run-now 2>&1 &
   AI_PID=$!
 
-  echo "[$TIMESTAMP] Running music-releases-agent..."
-  cd "$INSTALL_DIR/music-releases-agent"
-  # macOS has no `timeout` — use background job + manual kill after 300s
-  $NODE index.js 2>&1 &
-  MUSIC_PID=$!
-  ( sleep 300 && kill $MUSIC_PID 2>/dev/null ) &
-  KILLER_PID=$!
+  # music-releases-agent is scheduled internally by bot.js — skipped here to avoid duplicate sends
 
   wait $AI_PID 2>/dev/null
   echo "[$TIMESTAMP] AI News Agent completed"
 
-  wait $MUSIC_PID 2>/dev/null
-  echo "[$TIMESTAMP] Music Agent completed"
-  kill $KILLER_PID 2>/dev/null  # cancel the timeout killer if music finished early
-
-  echo "[$TIMESTAMP] ====== Both agents completed ======"
+  echo "[$TIMESTAMP] ====== Agents run complete ======"
 } | tee -a "$LOG_DIR/scheduler.log"
