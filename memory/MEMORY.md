@@ -36,13 +36,21 @@
   - PID tracked in: `~/Documents/claude-code/ai-news-agent/logs/agent.pid`
   - Start manually: `cd ~/Documents/claude-code/ai-news-agent && PYTHON=/usr/bin/python3 ./agent.sh start`
 - Music bot: `com.bots.music-listener.plist` → runs `start-listener.sh` (while-true wrapper around bot.js)
-  - Log: `~/claude-code/logs/music-bot.log`
-  - Start manually: `nohup /opt/homebrew/bin/node ~/Documents/claude-code/music-releases-agent/bot.js &`
+  - Log: `~/claude-code/logs/music-bot.log` (temporary — move to ~/Documents/claude-code/ once node has FDA)
+  - Start manually: `nohup /bin/bash ~/Documents/claude-code/music-releases-agent/start-listener.sh >> ~/claude-code/logs/music-bot.log 2>&1 &`
 
 ### LaunchAgent Log Paths
 - LaunchAgent stdout/stderr must NOT point to ~/Documents/ — causes exit 78 (no Full Disk Access for log writes)
-- Safe log path: `~/claude-code/logs/` (outside Documents)
+- Safe log path for LaunchAgent stdout/stderr: `~/claude-code/logs/` (outside Documents)
 - Scheduler logs (written by bash which has FDA): `~/Documents/claude-code/scheduler-logs/`
+
+### Full Disk Access — Required Binaries
+All of these must be in System Settings → Privacy & Security → Full Disk Access:
+- `/bin/bash` ✅ already granted
+- `/usr/bin/python3` ⚠️ PENDING — needed so python3 (dashboard.py, main.py) can read/write ~/Documents/ when started via LaunchAgent
+- `/opt/homebrew/bin/node` ⚠️ PENDING — needed so node (bot.js, index.js) can read/write ~/Documents/ when started via LaunchAgent
+- Until granted: workaround files live in `~/claude-code/logs/` (latest_links.json, music-bot.log)
+- User preference: all logs/state should live in ~/Documents/claude-code/ — revert workarounds once FDA is granted
 
 ### Known Issue: LaunchAgent Exit 126
 macOS blocks launchd from ~/Documents without Full Disk Access for /bin/bash.
@@ -54,7 +62,10 @@ Already granted on this Mac Mini ✅
 2. `git clone https://github.com/checkmate9/music-releases-agent`
 3. `git clone https://github.com/checkmate9/claude-code-scheduler && bash claude-code-scheduler/install.sh`
 4. Extract secrets from `secrets_*.tar.gz` into each agent folder
-5. Grant Full Disk Access to /bin/bash
+5. Grant Full Disk Access to: /bin/bash, /usr/bin/python3, /opt/homebrew/bin/node
+
+## Whoop Dashboard
+- [project_whoop_dashboard.md](project_whoop_dashboard.md) — Node.js/Express Whoop health dashboard at ~/Documents/claude-code/whoop-dashboard
 
 ## Git Workflow
 - git user: checkmate9 / checkmate9@gmail.com
