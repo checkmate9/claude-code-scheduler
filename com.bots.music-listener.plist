@@ -14,9 +14,5 @@
   <true/>
   <key>KeepAlive</key>
   <false/>
-  <key>StandardOutPath</key>
-  <string>/Users/shaharhalperin/claude-code/logs/music-bot.log</string>
-  <key>StandardErrorPath</key>
-  <string>/Users/shaharhalperin/claude-code/logs/music-bot.log</string>
 </dict>
 </plist>
