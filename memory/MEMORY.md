@@ -7,55 +7,26 @@
 
 ## Telegram Bots — ~/Documents/claude-code/
 
-### ai-news-agent (Python)
-- Scrapes AI news (RSS, Reddit, HN) → summarizes with Claude Haiku → sends Telegram digest
-- Entry: `main.py --run-now` | Persistent: `./agent.sh start`
-- Dashboard: http://localhost:3010
-- Schedule: built-in APScheduler (08:00 + 18:00 NY time by default, overridden by master LaunchAgent)
-- Repo: https://github.com/checkmate9/ai-news-agent
-- Has CLAUDE.md ✅
+- [project_ai_news_agent.md](project_ai_news_agent.md) — Python bot, AI news digest, dashboard on :3010
+- [project_music_releases_agent.md](project_music_releases_agent.md) — Node.js bot, Spotify releases filtered by genre
 
-### music-releases-agent (Node.js, zero deps)
-- Fetches new Spotify releases → filters by genre → sends Telegram digest
-- Entry: `node index.js` (one-shot) | Persistent: `node bot.js`
-- Genres configured in: `genres.json`
-- Repo: https://github.com/checkmate9/music-releases-agent
-- Has CLAUDE.md ✅ (added 2026-03-11)
-
-### Scheduler
+### Scheduler (shared)
 - macOS LaunchAgent: `~/Library/LaunchAgents/com.agents.every6h.plist`
-- Fires at: 00:00, 06:00, 12:00, 18:00 **Israel time** (local system time)
-- Script: `~/Documents/claude-code/run-agents-every-6h.sh`
-- Uses full paths: PYTHON=/usr/bin/python3, NODE=/opt/homebrew/bin/node
-- macOS has no `timeout` — uses background kill pattern instead
+- Fires at: 00:00, 06:00, 12:00, 18:00 **Israel time**
+- Script: `~/Documents/claude-code/run-agents-every-6h.sh` (ai-news only — music has internal scheduler)
 - Repo: https://github.com/checkmate9/claude-code-scheduler
 - Logs: `~/Documents/claude-code/scheduler-logs/`
 
-### Persistent Listeners (for /links and /runnow)
-- AI news: `com.ai-news-agent.listener.plist` → runs `agent.sh start` at boot
-  - PID tracked in: `~/Documents/claude-code/ai-news-agent/logs/agent.pid`
-  - Start manually: `cd ~/Documents/claude-code/ai-news-agent && PYTHON=/usr/bin/python3 ./agent.sh start`
-- Music bot: `com.bots.music-listener.plist` → runs `start-listener.sh` (while-true wrapper around bot.js)
-  - Log: `~/claude-code/logs/music-bot.log` (temporary — move to ~/Documents/claude-code/ once node has FDA)
-  - Start manually: `nohup /bin/bash ~/Documents/claude-code/music-releases-agent/start-listener.sh >> ~/claude-code/logs/music-bot.log 2>&1 &`
-
-### LaunchAgent Log Paths
-- LaunchAgent stdout/stderr must NOT point to ~/Documents/ — causes exit 78 (no Full Disk Access for log writes)
-- Safe log path for LaunchAgent stdout/stderr: `~/claude-code/logs/` (outside Documents)
-- Scheduler logs (written by bash which has FDA): `~/Documents/claude-code/scheduler-logs/`
-
 ### Full Disk Access — Required Binaries
-All of these must be in System Settings → Privacy & Security → Full Disk Access:
-- `/bin/bash` ✅ already granted
-- `/usr/bin/python3` ⚠️ PENDING — needed so python3 (dashboard.py, main.py) can read/write ~/Documents/ when started via LaunchAgent
-- `/opt/homebrew/bin/node` ⚠️ PENDING — needed so node (bot.js, index.js) can read/write ~/Documents/ when started via LaunchAgent
-- Until granted: workaround files live in `~/claude-code/logs/` (latest_links.json, music-bot.log)
-- User preference: all logs/state should live in ~/Documents/claude-code/ — revert workarounds once FDA is granted
+System Settings → Privacy & Security → Full Disk Access:
+- `/bin/bash` ✅
+- `/usr/bin/python3` ⚠️ PENDING — needed for dashboard.py / main.py via LaunchAgent
+- `/opt/homebrew/bin/node` ⚠️ PENDING — needed for bot.js / index.js via LaunchAgent
+- Until granted: workarounds in place (files in `~/claude-code/logs/`, bash-wrapper spawn)
+- **Once granted: revert all workarounds, move all files back to ~/Documents/claude-code/**
 
 ### Known Issue: LaunchAgent Exit 126
-macOS blocks launchd from ~/Documents without Full Disk Access for /bin/bash.
-Fix: System Settings → Privacy & Security → Full Disk Access → + → /bin/bash
-Already granted on this Mac Mini ✅
+Fix: Full Disk Access → `/bin/bash` ✅ already granted on this Mac Mini
 
 ## Migration to New Machine
 1. `git clone https://github.com/checkmate9/ai-news-agent`
